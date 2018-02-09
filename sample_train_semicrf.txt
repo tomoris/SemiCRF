@@ -1,0 +1,3 @@
+we/O are/O AKB-48/Idol ./O
+you/O are/O NMB-48/Idol ./O
+they/O are/O HKT-48/Idol ./O
