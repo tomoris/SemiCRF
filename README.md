@@ -1,4 +1,4 @@
-# SemiCRF
+# Semi Markov CRF
 
 ## 概要  
 セミマルコフモデルのCRF  
