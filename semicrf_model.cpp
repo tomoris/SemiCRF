@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include "semicrf.hpp"
-#include "../preprocess/sentence.hpp"
+#include "../../preprocess/sentence.hpp"
 
 using labels = std::pair<int, std::pair<int, int>>;
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
       return -1;
     }
   }
-  
+
   std::ifstream partial_train_file(partial_train_file_name);
   if (partial_train_file_name != "") {
     if (partial_train_file.fail()){
@@ -119,11 +119,11 @@ int main(int argc, char *argv[]) {
       std::string chunk = preprocess::replace_sentence(chunk_and_tag[0], "-", "");
       auto itr1 = word2index.find(chunk);
       if (itr1 == word2index.end()) {
-          std::cout << chunk << " " << word_index_size << '\n';
         word2index[chunk] = word_index_size;
         index2word[word_index_size] = chunk;
         word_index_size++;
       }
+
       auto itr2 = tag2index.find(chunk_and_tag[1]);
       if (itr2 == tag2index.end()) {
         tag2index[chunk_and_tag[1]] = tag_index_size;
@@ -132,10 +132,9 @@ int main(int argc, char *argv[]) {
       }
 
       std::vector<std::string> chunk_sp = preprocess::split_sentence(chunk_and_tag[0], "-");
-      for (auto chunk_sp_itr = chunk_sp.begin(); chunk_sp_itr != chunk_sp.end(); ++ chunk_sp_itr) {
+      for (auto chunk_sp_itr = chunk_sp.begin(); chunk_sp_itr != chunk_sp.end(); ++chunk_sp_itr) {
         auto itr3 = word2index.find(*chunk_sp_itr);
         if (itr3 == word2index.end()) {
-            std::cout << *chunk_sp_itr << " " << word_index_size << '\n';
           word2index[*chunk_sp_itr] = word_index_size;
           index2word[word_index_size] = *chunk_sp_itr;
           word_index_size++;
@@ -143,14 +142,13 @@ int main(int argc, char *argv[]) {
         words.push_back(*chunk_sp_itr);
         words_index.push_back(word2index[*chunk_sp_itr]);
       }
-
       lbl.first = tag2index[chunk_and_tag[1]];
       lbl.second = std::make_pair(t, t+chunk_sp.size()-1);
       //tags.push_back(word_and_tag[1]);
       tags_index.push_back(lbl);
       t = t + chunk_sp.size();
     }
-    
+
 
     words.push_back("<BOS>");
     words_index.push_back(word2index["<BOS>"]);
@@ -185,7 +183,6 @@ int main(int argc, char *argv[]) {
           std::string chunk = preprocess::replace_sentence(chunk_and_tag[0], "-", "");
           auto itr1 = word2index.find(chunk);
           if (itr1 == word2index.end()) {
-            std::cout << chunk << '\n';
             word2index[chunk] = word_index_size;
             index2word[word_index_size] = chunk;
             word_index_size++;
@@ -209,16 +206,25 @@ int main(int argc, char *argv[]) {
             words_index.push_back(word2index[*chunk_sp_itr]);
           }
 
-          lbl.first = tag2index[chunk_and_tag[1]];
-          lbl.second = std::make_pair(t, t+chunk_sp.size()-1);
+          std::vector<std::string> tag_sp = preprocess::split_sentence(chunk_and_tag[1], "|");
+          for (auto tag_sp_itr = tag_sp.begin(); tag_sp_itr != tag_sp.end(); ++tag_sp_itr ) {
+            auto itr2 = tag2index.find(*tag_sp_itr);
+            if (itr2 == tag2index.end()) {
+              tag2index[*tag_sp_itr] = tag_index_size;
+              index2tag[tag_index_size] = *tag_sp_itr;
+              tag_index_size++;
+            }
+            lbl.first = tag2index[*tag_sp_itr];
+            lbl.second = std::make_pair(t, t+chunk_sp.size()-1);
+            //tags.push_back(word_and_tag[1]);
+            tags_index.push_back(lbl);
+          }
 
-          tags_index.push_back(lbl);
           t = t + chunk_sp.size();
         }
         else if (chunk_and_tag.size() == 1) {
           auto itr1 = word2index.find(chunk_and_tag[0]);
           if (itr1 == word2index.end()) {
-            std::cout << chunk_and_tag[0] << '\n';
             word2index[chunk_and_tag[0]] = word_index_size;
             index2word[word_index_size] = chunk_and_tag[0];
             word_index_size++;
@@ -295,10 +301,8 @@ int main(int argc, char *argv[]) {
             rand_index[j] = j;
         }
         random_shuffle(rand_index.begin(), rand_index.end());
-        
+
         for (int j = 0; j < dataset_index.size(); j++) {
-            std::cout << i << " " << j << " " << rand_index[j] << '\n';
-            //std::cout << dataset[rand_index[j]][1] << " " << dataset[rand_index[j]][2] << " " << dataset[rand_index[j]][3] << '\n';
             model.train(dataset[rand_index[j]], dataset_tag_index[rand_index[j]]);
         }
     }
@@ -324,7 +328,7 @@ int main(int argc, char *argv[]) {
     fclose(mfp);
 
   }
-  
+
 
   if (save_model_file_name != "") {
     FILE *mfp = NULL;
@@ -335,17 +339,17 @@ int main(int argc, char *argv[]) {
   semiCRF load_model(mfp);
   fclose(mfp);
   std::cout << "load done" << std::endl;
-  
+
 
     std::vector<labels> predict_labels;
-    for (int j = 0; j < dataset_index.size(); j++) {
-      model.test(dataset[j], predict_labels);
+    for (int j = 0; j < dataset_p_index.size(); j++) {
+      model.test(dataset_p[j], predict_labels);
       for(auto itr = predict_labels.begin()+2; itr != predict_labels.end(); ++itr) {
         for(int t = itr->second.first; t <= itr->second.second; t++){
           if (t < itr->second.second) {
-              std::cout << dataset[j][t] << "-";
+              std::cout << dataset_p[j][t] << "-";
           } else {
-              std::cout << dataset[j][t] << "/" << index2tag[itr->first] << " ";
+              std::cout << dataset_p[j][t] << "/" << index2tag[itr->first] << " ";
           }
         }
         //std::cout << itr->first << "~" << itr->second.first << "~" << itr->second.second << "\n";

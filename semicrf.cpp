@@ -76,7 +76,7 @@ std::vector<unsigned int> semiCRF::return_feature_indexes_for_grad_item_at_tkzjr
     v.push_back(feature_w_index);
    }
   */
-  
+
   return v;
 }
 
@@ -394,7 +394,7 @@ void semiCRF::viterbi(const std::vector<std::string> &words, std::vector<labels>
   }
   alpha[t*a1 + k*a2 + z] = max;
 
-    
+
   //backward algorithm
   t = words.size() -1;
   k = 1;
@@ -479,7 +479,6 @@ void semiCRF::calc_forward_backward_with_patial_annotaion(const std::vector<std:
     lse_item_alpha.clear();
     lse_item_beta.clear();
 
-
     for (auto itr = end2tag_begin[t-k].begin(); itr != end2tag_begin[t-k].end(); ++itr) {
       int r = itr->first;
       int j = -1 * (itr->second -t +k -1);
@@ -490,8 +489,6 @@ void semiCRF::calc_forward_backward_with_patial_annotaion(const std::vector<std:
       int j_beta = itr->second -t_beta -k_beta +1;
       lse_item_beta.push_back(alpha_item[(t_beta+j_beta+k_beta-1)*ai1 + j_beta*ai2 + r_beta*ai3 + k_beta*ai4 + z_beta] + beta_partial[(t_beta+k_beta)*a1 + j_beta*a2 + r_beta]);
     }
-
-
 
     alpha_partial[t*a1 + k*a2 + z] = logsumexp(lse_item_alpha);
     beta_partial[t_beta*a1 + k_beta*a2 + z_beta] = logsumexp(lse_item_beta);
@@ -632,8 +629,8 @@ void semiCRF::unserialize(FILE *fp) {
 
 std::vector<double> semiCRF::calc_semicrf_score(const std::vector<std::string> &words) {
   int alpha_item_size = words.size() * (MAXIMUM_LENGTH+1) * (MAXIMUM_LENGTH+1) * tag_index_size * tag_index_size;
-  //alphaは１次元のvectorを用いて3次元として表す alpha[t][k][z] = alpha[t*a1 + k*a2 + z]                                                                       
-  //alpha_itemは１次元のvectorを用いて5次元として表す alpha[t][k][z][j][r] = alpha_item[t*ai1 + k*ai2 + z*a3 + j*ai4 +r]                                       
+  //alphaは１次元のvectorを用いて3次元として表す alpha[t][k][z] = alpha[t*a1 + k*a2 + z]
+  //alpha_itemは１次元のvectorを用いて5次元として表す alpha[t][k][z][j][r] = alpha_item[t*ai1 + k*ai2 + z*a3 + j*ai4 +r]
   alpha_item.resize(alpha_item_size, 0.0);
 
   for (int t = 0; t < words.size(); t++) {
@@ -659,4 +656,3 @@ int semiCRF::get_ai1() {return ai1;}
 int semiCRF::get_ai2() {return ai2;}
 int semiCRF::get_ai3() {return ai3;}
 int semiCRF::get_ai4() {return ai4;}
-
