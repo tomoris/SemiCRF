@@ -1,3 +1,2 @@
-we/O are/O AKB-48/Idol ./O
-you/O are/O NMB-48/Idol ./O
-they/O are/O HKT-48/Idol ./O
+夏/O の/O 代表的/O な/O スポーツ/O は/O ビーチ-バレー/s-sports です/O 。/O
+冬/O は/O アイス-ホッケー/w-sports と/O スキー/w-sports が/O したい/O です/O 。/O
